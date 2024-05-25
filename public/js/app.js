@@ -41,13 +41,18 @@ var Message = React.createClass({
          React.createElement(
             'strong',
             null,
-            this.props.user,
+            this.props.username,
             ' :'
          ),
          React.createElement(
             'span',
             null,
             this.props.text
+         ),
+         React.createElement(
+            'div',
+            { className: 'timestamp' },
+            this.props.timestamp
          )
       );
    }
@@ -68,8 +73,9 @@ var MessageList = React.createClass({
          this.props.messages.map(function (message, i) {
             return React.createElement(Message, {
                key: i,
-               user: message.user,
-               text: message.text
+               username: message.username,
+               text: message.text,
+               timestamp: message.created_at
             });
          })
       );
@@ -86,9 +92,10 @@ var MessageForm = React.createClass({
    handleSubmit: function handleSubmit(e) {
       e.preventDefault();
       var message = {
-         user: this.props.user,
+         username: this.props.user, // 'user' 대신 'username' 사용
          text: this.state.text,
-         chat_room_id: this.props.roomId // 채팅방 ID 추가
+         chat_room_id: this.props.roomId,
+         created_at: new Date().toISOString() // 메시지 전송 시간을 추가
       };
       this.props.onMessageSubmit(message);
       this.setState({ text: '' });

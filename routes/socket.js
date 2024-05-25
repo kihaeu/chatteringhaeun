@@ -81,14 +81,15 @@ module.exports = function (socket) {
   // broadcast a user's message to other users
   socket.on('send:message', function (data) {
     var message = {
-      user: name,
-      text: data.text
+      username: name,
+      text: data.text,
+      created_at: new Date().toISOString()
     };
     socket.broadcast.emit('send:message', message);
 
     // Insert message into the database
-    var query = 'INSERT INTO messages (chat_room_id, user_id, text) VALUES (?, (SELECT id FROM users WHERE username = ?), ?)';
-    db.query(query, [data.chat_room_id, name, data.text], function(err, results) {
+    var query = 'INSERT INTO messages (chat_room_id, username, text) VALUES (?, ?, ?)';
+    db.query(query, [data.chat_room_id, name, data.text, message.created_at], function(err, results) {
       if (err) {
         console.error('Error inserting message into database: ', err);
       } else {

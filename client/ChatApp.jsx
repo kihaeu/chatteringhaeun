@@ -28,8 +28,9 @@ var Message = React.createClass({
    render() {
       return (
          <div className="message">
-            <strong>{this.props.user} :</strong> 
-            <span>{this.props.text}</span>      
+            <strong>{this.props.username} :</strong> 
+            <span>{this.props.text}</span>
+            <div className="timestamp">{this.props.timestamp}</div>      
          </div>
       );
    }
@@ -45,8 +46,9 @@ var MessageList = React.createClass({
                   return (
                      <Message
                         key={i}
-                        user={message.user}
-                        text={message.text} 
+                        username={message.username}
+                        text={message.text}
+                        timestamp={message.created_at} 
                      />
                   );
                })
@@ -64,9 +66,10 @@ var MessageForm = React.createClass({
    handleSubmit(e) {
       e.preventDefault();
       var message = {
-         user: this.props.user,
+         username: this.props.user, // 'user' 대신 'username' 사용
          text: this.state.text,
-         chat_room_id: this.props.roomId // 채팅방 ID 추가
+         chat_room_id: this.props.roomId,
+         created_at: new Date().toISOString() // 메시지 전송 시간을 추가
       };
       this.props.onMessageSubmit(message);   
       this.setState({ text: '' });
