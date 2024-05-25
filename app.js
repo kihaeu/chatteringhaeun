@@ -1,33 +1,45 @@
+// app.jsx
 'use strict';
 
-/**
- * Module dependencies.
- */
+var React = require('react');
+var ChatApp = require('./ChatApp.jsx');
+var LoginPage = require('./LoginPage.jsx');
+var SignUpPage = require('./SignUpPage.jsx');
 
-var express = require('express');
-var http = require('http');
+var App = React.createClass({
+	getInitialState() {
+		return {page: 'login'};
+	},
 
-var socket = require('./routes/socket.js');
+	handleLogin() {
+		this.setState({page: 'chat'});
+	},
 
-var app = express();
-var server = http.createServer(app);
+	handleSignUp() {
+		this.setState({page: 'signup'});
+	},
 
-/* Configuration */
-app.set('views', __dirname + '/views');
-app.use(express.static(__dirname + '/public'));
-app.set('port', 3000);
+	handleSignUpSuccess() {
+		this.setState({page: 'login'});
+	},
 
-if (process.env.NODE_ENV === 'development') {
-	app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-}
+	render() {
+		let content;
 
-/* Socket.io Communication */
-var io = require('socket.io').listen(server);
-io.sockets.on('connection', socket);
+		if (this.state.page === 'login') {
+			content = <LoginPage onLogin={this.handleLogin} onSignUp={this.handleSignUp} />;
+		} else if (this.state.page === 'signup') {
+			content = <SignUpPage onSignUpSuccess={this.handleSignUpSuccess} />;
+		} else if (this.state.page === 'chat') {
+			content = <ChatApp />;
+		}
 
-/* Start server */
-server.listen(app.get('port'), function (){
-  console.log('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
+		return (
+			<div>
+				{content}
+			</div>
+		);
+	}
 });
 
-module.exports = app;
+React.render(<App/>, document.getElementById('app'));
