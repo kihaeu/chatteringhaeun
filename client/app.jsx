@@ -46,7 +46,7 @@ var App = React.createClass({
 		} else if (this.state.page === 'signup') {
 			content = <SignUpPage onSignUpSuccess={this.handleSignUpSuccess} />;
 		} else if (this.state.page === 'chat') {
-			content = <ChatApp roomId={this.state.roomId} />;
+			content = <ChatApp roomId={this.state.roomId} username={this.state.user} />;
 		} else if (this.state.page === 'mypage') {
 			content = <MyPage currentName={this.state.user} onChangeName={this.handleChangeName} />;
 		} else if (this.state.page === 'chatsearch') {
@@ -55,12 +55,7 @@ var App = React.createClass({
 
 		return (
 			<div>
-				
-				{this.state.page !== 'login' && this.state.page !== 'signup' && 
-				(<div> 
-					<h3>user : {this.state.user}</h3>
-					<Sidebar onNavigate={this.handleNavigate} />
-				</div>)}
+				{this.state.page !== 'login' && this.state.page !== 'signup' && <Sidebar onNavigate={this.handleNavigate} />}
 				{content}
 			</div>
 		);

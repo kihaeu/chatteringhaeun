@@ -3,7 +3,7 @@
 'use strict';
 
 var React = require('react');
-var socket = io.connect();
+var socket;
 
 var UsersList = React.createClass({
 	displayName: 'UsersList',
@@ -125,6 +125,7 @@ var ChatApp = React.createClass({
 	},
 
 	componentDidMount: function componentDidMount() {
+		socket = io.connect('', { query: 'username=' + this.props.username });
 		this.fetchMessages();
 		socket.on('init', this._initialize);
 		socket.on('send:message', this._messageRecieve);
@@ -157,6 +158,23 @@ var ChatApp = React.createClass({
 
 		messages.push(message);
 		this.setState({ messages: messages });
+	},
+
+	_userJoined: function _userJoined(data) {
+		var users = this.state.users;
+
+		users.push(data.name);
+		this.setState({ users: users });
+	},
+
+	_userLeft: function _userLeft(data) {
+		var users = this.state.users;
+
+		var index = users.indexOf(data.name);
+		if (index !== -1) {
+			users.splice(index, 1);
+			this.setState({ users: users });
+		}
 	},
 
 	handleMessageSubmit: function handleMessageSubmit(message) {
@@ -675,7 +693,7 @@ var App = React.createClass({
 		} else if (this.state.page === 'signup') {
 			content = React.createElement(SignUpPage, { onSignUpSuccess: this.handleSignUpSuccess });
 		} else if (this.state.page === 'chat') {
-			content = React.createElement(ChatApp, { roomId: this.state.roomId });
+			content = React.createElement(ChatApp, { roomId: this.state.roomId, username: this.state.user });
 		} else if (this.state.page === 'mypage') {
 			content = React.createElement(MyPage, { currentName: this.state.user, onChangeName: this.handleChangeName });
 		} else if (this.state.page === 'chatsearch') {
@@ -685,17 +703,7 @@ var App = React.createClass({
 		return React.createElement(
 			'div',
 			null,
-			this.state.page !== 'login' && this.state.page !== 'signup' && React.createElement(
-				'div',
-				null,
-				React.createElement(
-					'h3',
-					null,
-					'user : ',
-					this.state.user
-				),
-				React.createElement(Sidebar, { onNavigate: this.handleNavigate })
-			),
+			this.state.page !== 'login' && this.state.page !== 'signup' && React.createElement(Sidebar, { onNavigate: this.handleNavigate }),
 			content
 		);
 	}

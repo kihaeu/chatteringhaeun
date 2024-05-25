@@ -2,7 +2,7 @@
 'use strict';
 
 var React = require('react');
-var socket = io.connect();
+var socket;
 
 var UsersList = React.createClass({
 	render() {
@@ -99,6 +99,7 @@ var ChatApp = React.createClass({
 	},
 
 	componentDidMount() {
+		socket = io.connect('', { query: `username=${this.props.username}` });
 		this.fetchMessages();
 		socket.on('init', this._initialize);
 		socket.on('send:message', this._messageRecieve);
@@ -127,6 +128,21 @@ var ChatApp = React.createClass({
 		var {messages} = this.state;
 		messages.push(message);
 		this.setState({messages});
+	},
+
+	_userJoined(data) {
+		var {users} = this.state;
+		users.push(data.name);
+		this.setState({users});
+	},
+
+	_userLeft(data) {
+		var {users} = this.state;
+		var index = users.indexOf(data.name);
+		if (index !== -1) {
+			users.splice(index, 1);
+			this.setState({users});
+		}
 	},
 
 	handleMessageSubmit(message) {

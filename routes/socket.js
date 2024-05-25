@@ -1,4 +1,4 @@
-// Keep track of which names are used so that there are no duplicates
+// routes/socket.js
 var userNames = (function () {
   var names = {};
 
@@ -27,10 +27,9 @@ var userNames = (function () {
   // serialize claimed names as an array
   var get = function () {
     var res = [];
-    for (user in names) {
+    for (var user in names) {
       res.push(user);
     }
-
     return res;
   };
 
@@ -50,7 +49,8 @@ var userNames = (function () {
 
 // export function for listening to the socket
 module.exports = function (socket) {
-  var name = userNames.getGuestName();
+  var name = socket.handshake.query.username || userNames.getGuestName();
+  userNames.claim(name);
 
   // send the new user their name and a list of users
   socket.emit('init', {
