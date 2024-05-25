@@ -1,219 +1,219 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-// ChatApp.jsx
 'use strict';
 
 var React = require('react');
 var socket;
 
 var UsersList = React.createClass({
-	displayName: 'UsersList',
+   displayName: 'UsersList',
 
-	render: function render() {
-		return React.createElement(
-			'div',
-			{ className: 'users' },
-			React.createElement(
-				'h3',
-				null,
-				' 참여자들 '
-			),
-			React.createElement(
-				'ul',
-				null,
-				this.props.users.map(function (user, i) {
-					return React.createElement(
-						'li',
-						{ key: i },
-						user
-					);
-				})
-			)
-		);
-	}
+   render: function render() {
+      return React.createElement(
+         'div',
+         { className: 'users' },
+         React.createElement(
+            'h3',
+            null,
+            ' 참여자들 '
+         ),
+         React.createElement(
+            'ul',
+            null,
+            this.props.users.map(function (user, i) {
+               return React.createElement(
+                  'li',
+                  { key: i },
+                  user
+               );
+            })
+         )
+      );
+   }
 });
 
 var Message = React.createClass({
-	displayName: 'Message',
+   displayName: 'Message',
 
-	render: function render() {
-		return React.createElement(
-			'div',
-			{ className: 'message' },
-			React.createElement(
-				'strong',
-				null,
-				this.props.user,
-				' :'
-			),
-			React.createElement(
-				'span',
-				null,
-				this.props.text
-			)
-		);
-	}
+   render: function render() {
+      return React.createElement(
+         'div',
+         { className: 'message' },
+         React.createElement(
+            'strong',
+            null,
+            this.props.user,
+            ' :'
+         ),
+         React.createElement(
+            'span',
+            null,
+            this.props.text
+         )
+      );
+   }
 });
 
 var MessageList = React.createClass({
-	displayName: 'MessageList',
+   displayName: 'MessageList',
 
-	render: function render() {
-		return React.createElement(
-			'div',
-			{ className: 'messages' },
-			React.createElement(
-				'h2',
-				null,
-				' 채팅방 '
-			),
-			this.props.messages.map(function (message, i) {
-				return React.createElement(Message, {
-					key: i,
-					user: message.user,
-					text: message.text
-				});
-			})
-		);
-	}
+   render: function render() {
+      return React.createElement(
+         'div',
+         { className: 'messages' },
+         React.createElement(
+            'h2',
+            null,
+            ' 채팅방 '
+         ),
+         this.props.messages.map(function (message, i) {
+            return React.createElement(Message, {
+               key: i,
+               user: message.user,
+               text: message.text
+            });
+         })
+      );
+   }
 });
 
 var MessageForm = React.createClass({
-	displayName: 'MessageForm',
+   displayName: 'MessageForm',
 
-	getInitialState: function getInitialState() {
-		return { text: '' };
-	},
+   getInitialState: function getInitialState() {
+      return { text: '' };
+   },
 
-	handleSubmit: function handleSubmit(e) {
-		e.preventDefault();
-		var message = {
-			user: this.props.user,
-			text: this.state.text
-		};
-		this.props.onMessageSubmit(message);
-		this.setState({ text: '' });
-	},
+   handleSubmit: function handleSubmit(e) {
+      e.preventDefault();
+      var message = {
+         user: this.props.user,
+         text: this.state.text,
+         chat_room_id: this.props.roomId // 채팅방 ID 추가
+      };
+      this.props.onMessageSubmit(message);
+      this.setState({ text: '' });
+   },
 
-	changeHandler: function changeHandler(e) {
-		this.setState({ text: e.target.value });
-	},
+   changeHandler: function changeHandler(e) {
+      this.setState({ text: e.target.value });
+   },
 
-	render: function render() {
-		return React.createElement(
-			'div',
-			{ className: 'message_form' },
-			React.createElement(
-				'form',
-				{ onSubmit: this.handleSubmit },
-				React.createElement('input', {
-					placeholder: '메시지 입력',
-					className: 'textinput',
-					onChange: this.changeHandler,
-					value: this.state.text
-				}),
-				React.createElement('h3', null)
-			)
-		);
-	}
+   render: function render() {
+      return React.createElement(
+         'div',
+         { className: 'message_form' },
+         React.createElement(
+            'form',
+            { onSubmit: this.handleSubmit },
+            React.createElement('input', {
+               placeholder: '메시지 입력',
+               className: 'textinput',
+               onChange: this.changeHandler,
+               value: this.state.text
+            }),
+            React.createElement('h3', null)
+         )
+      );
+   }
 });
 
 var ChatApp = React.createClass({
-	displayName: 'ChatApp',
+   displayName: 'ChatApp',
 
-	getInitialState: function getInitialState() {
-		return { users: [], messages: [], text: '', roomId: this.props.roomId };
-	},
+   getInitialState: function getInitialState() {
+      return { users: [], messages: [], text: '', roomId: this.props.roomId };
+   },
 
-	componentDidMount: function componentDidMount() {
-		socket = io.connect('', { query: 'username=' + this.props.username });
-		this.fetchMessages();
-		socket.on('init', this._initialize);
-		socket.on('send:message', this._messageRecieve);
-		socket.on('user:join', this._userJoined);
-		socket.on('user:left', this._userLeft);
-		socket.on('change:name', this._userChangedName);
-	},
+   componentDidMount: function componentDidMount() {
+      socket = io.connect('', { query: 'username=' + this.props.username });
+      this.fetchMessages();
+      socket.on('init', this._initialize);
+      socket.on('send:message', this._messageRecieve);
+      socket.on('user:join', this._userJoined);
+      socket.on('user:left', this._userLeft);
+      socket.on('change:name', this._userChangedName);
+   },
 
-	fetchMessages: function fetchMessages() {
-		var _this = this;
+   fetchMessages: function fetchMessages() {
+      var _this = this;
 
-		fetch('/chat-rooms/' + this.state.roomId + '/messages').then(function (response) {
-			return response.json();
-		}).then(function (data) {
-			_this.setState({ messages: data });
-		})['catch'](function (error) {
-			console.error('Error fetching messages:', error);
-		});
-	},
+      fetch('/chat-rooms/' + this.state.roomId + '/messages').then(function (response) {
+         return response.json();
+      }).then(function (data) {
+         _this.setState({ messages: data });
+      })['catch'](function (error) {
+         console.error('Error fetching messages:', error);
+      });
+   },
 
-	_initialize: function _initialize(data) {
-		var users = data.users;
-		var name = data.name;
+   _initialize: function _initialize(data) {
+      var users = data.users;
+      var name = data.name;
 
-		this.setState({ users: users, user: name });
-	},
+      this.setState({ users: users, user: name });
+   },
 
-	_messageRecieve: function _messageRecieve(message) {
-		var messages = this.state.messages;
+   _messageRecieve: function _messageRecieve(message) {
+      var messages = this.state.messages;
 
-		messages.push(message);
-		this.setState({ messages: messages });
-	},
+      messages.push(message);
+      this.setState({ messages: messages });
+   },
 
-	_userJoined: function _userJoined(data) {
-		var users = this.state.users;
+   _userJoined: function _userJoined(data) {
+      var users = this.state.users;
 
-		users.push(data.name);
-		this.setState({ users: users });
-	},
+      users.push(data.name);
+      this.setState({ users: users });
+   },
 
-	_userLeft: function _userLeft(data) {
-		var users = this.state.users;
+   _userLeft: function _userLeft(data) {
+      var users = this.state.users;
 
-		var index = users.indexOf(data.name);
-		if (index !== -1) {
-			users.splice(index, 1);
-			this.setState({ users: users });
-		}
-	},
+      var index = users.indexOf(data.name);
+      if (index !== -1) {
+         users.splice(index, 1);
+         this.setState({ users: users });
+      }
+   },
 
-	handleMessageSubmit: function handleMessageSubmit(message) {
-		var messages = this.state.messages;
+   handleMessageSubmit: function handleMessageSubmit(message) {
+      var messages = this.state.messages;
 
-		messages.push(message);
-		this.setState({ messages: messages });
-		socket.emit('send:message', message);
-	},
+      messages.push(message);
+      this.setState({ messages: messages });
+      socket.emit('send:message', message);
+   },
 
-	handleChangeName: function handleChangeName(newName) {
-		var _this2 = this;
+   handleChangeName: function handleChangeName(newName) {
+      var _this2 = this;
 
-		var oldName = this.state.user;
-		socket.emit('change:name', { name: newName }, function (result) {
-			if (!result) {
-				return alert('There was an error changing your name');
-			}
-			var users = _this2.state.users;
+      var oldName = this.state.user;
+      socket.emit('change:name', { name: newName }, function (result) {
+         if (!result) {
+            return alert('There was an error changing your name');
+         }
+         var users = _this2.state.users;
 
-			var index = users.indexOf(oldName);
-			users.splice(index, 1, newName);
-			_this2.setState({ users: users, user: newName });
-		});
-	},
+         var index = users.indexOf(oldName);
+         users.splice(index, 1, newName);
+         _this2.setState({ users: users, user: newName });
+      });
+   },
 
-	render: function render() {
-		return React.createElement(
-			'div',
-			null,
-			React.createElement(
-				'div',
-				{ className: 'center' },
-				React.createElement(UsersList, { users: this.state.users }),
-				React.createElement(MessageList, { messages: this.state.messages }),
-				React.createElement(MessageForm, { onMessageSubmit: this.handleMessageSubmit, user: this.state.user })
-			)
-		);
-	}
+   render: function render() {
+      return React.createElement(
+         'div',
+         null,
+         React.createElement(
+            'div',
+            { className: 'center' },
+            React.createElement(UsersList, { users: this.state.users }),
+            React.createElement(MessageList, { messages: this.state.messages }),
+            React.createElement(MessageForm, { onMessageSubmit: this.handleMessageSubmit, user: this.state.user, roomId: this.state.roomId })
+         )
+      );
+   }
 });
 
 module.exports = ChatApp;

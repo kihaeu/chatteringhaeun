@@ -1,4 +1,22 @@
 // routes/socket.js
+var mysql = require('mysql');
+
+// MySQL connection
+var db = mysql.createConnection({
+  host: 'localhost',
+  user: 'chatuser',
+  password: 'chatpw',
+  database: 'chatdb'
+});
+
+db.connect(function(err) {
+  if (err) {
+    console.error('error connecting: ' + err.stack);
+    return;
+  }
+  console.log('connected to MySQL as id ' + db.threadId);
+});
+
 var userNames = (function () {
   var names = {};
 
@@ -11,7 +29,6 @@ var userNames = (function () {
     }
   };
 
-  // find the lowest unused "guest" name and claim it
   var getGuestName = function () {
     var name,
       nextUserId = 1;
@@ -24,7 +41,6 @@ var userNames = (function () {
     return name;
   };
 
-  // serialize claimed names as an array
   var get = function () {
     var res = [];
     for (var user in names) {
@@ -47,7 +63,6 @@ var userNames = (function () {
   };
 }());
 
-// export function for listening to the socket
 module.exports = function (socket) {
   var name = socket.handshake.query.username || userNames.getGuestName();
   userNames.claim(name);
@@ -65,9 +80,20 @@ module.exports = function (socket) {
 
   // broadcast a user's message to other users
   socket.on('send:message', function (data) {
-    socket.broadcast.emit('send:message', {
+    var message = {
       user: name,
       text: data.text
+    };
+    socket.broadcast.emit('send:message', message);
+
+    // Insert message into the database
+    var query = 'INSERT INTO messages (chat_room_id, user_id, text) VALUES (?, (SELECT id FROM users WHERE username = ?), ?)';
+    db.query(query, [data.chat_room_id, name, data.text], function(err, results) {
+      if (err) {
+        console.error('Error inserting message into database: ', err);
+      } else {
+        console.log('Message inserted into database, ID:', results.insertId);
+      }
     });
   });
 
