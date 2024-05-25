@@ -93,49 +93,29 @@ var MessageForm = React.createClass({
 	}
 });
 
-var ChangeNameForm = React.createClass({
-	getInitialState() {
-		return {newName: ''};
-	},
-
-	onKey(e) {
-		this.setState({ newName : e.target.value });
-	},
-
-	handleSubmit(e) {
-		e.preventDefault();
-		var newName = this.state.newName;
-		this.props.onChangeName(newName);	
-		this.setState({ newName: '' });
-	},
-
-	render() {
-		return(
-			<div className='change_name_form'>
-				<h3> 아이디 변경 </h3>
-				<form onSubmit={this.handleSubmit}>
-					<input
-						placeholder='변경할 아이디 입력'
-						onChange={this.onKey}
-						value={this.state.newName} 
-					/>
-				</form>	
-			</div>
-		);
-	}
-});
-
 var ChatApp = React.createClass({
 	getInitialState() {
-		return {users: [], messages:[], text: ''};
+		return {users: [], messages:[], text: '', roomId: this.props.roomId};
 	},
 
 	componentDidMount() {
+		this.fetchMessages();
 		socket.on('init', this._initialize);
 		socket.on('send:message', this._messageRecieve);
 		socket.on('user:join', this._userJoined);
 		socket.on('user:left', this._userLeft);
 		socket.on('change:name', this._userChangedName);
+	},
+
+	fetchMessages() {
+		fetch(`/chat-rooms/${this.state.roomId}/messages`)
+			.then(response => response.json())
+			.then(data => {
+				this.setState({ messages: data });
+			})
+			.catch(error => {
+				console.error('Error fetching messages:', error);
+			});
 	},
 
 	_initialize(data) {
@@ -174,7 +154,6 @@ var ChatApp = React.createClass({
 			<div>
 				<div className='center'>
 					<UsersList users={this.state.users} />
-					<ChangeNameForm onChangeName={this.handleChangeName} />
 					<MessageList messages={this.state.messages} />
 					<MessageForm onMessageSubmit={this.handleMessageSubmit} user={this.state.user} />
 				</div>

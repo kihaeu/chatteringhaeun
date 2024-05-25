@@ -1,3 +1,5 @@
+
+
 // app.js
 'use strict';
 
@@ -84,9 +86,75 @@ app.post('/login', function(req, res) {
   });
 });
 
+// User name change endpoint
+app.post('/change-username', function(req, res) {
+  var oldUsername = req.body.oldUsername;
+  var newUsername = req.body.newUsername;
+  console.log(oldUsername, newUsername);
+  var query = 'UPDATE users SET username = ? WHERE username = ?';
+  db.query(query, [newUsername, oldUsername], function(err, results) {
+    if (err) {
+      if (err.code === 'ER_DUP_ENTRY') {
+        res.status(409).send('Username already exists');
+      } else {
+        res.status(500).send('Error changing username');
+      }
+    } else {
+      res.status(200).send('Username changed successfully');
+    }
+  });
+});
+
+// Get chat rooms endpoint
+app.get('/chat-rooms', function(req, res) {
+  var query = 'SELECT * FROM chat_rooms';
+  db.query(query, function(err, results) {
+    if (err) {
+      res.status(500).send('Error fetching chat rooms');
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
+
+// Create chat room endpoint
+app.post('/chat-rooms', function(req, res) {
+  var roomName = req.body.name;
+
+  var query = 'INSERT INTO chat_rooms (name) VALUES (?)';
+  db.query(query, [roomName], function(err, results) {
+    if (err) {
+      if (err.code === 'ER_DUP_ENTRY') {
+        res.status(409).send('Chat room already exists');
+      } else {
+        res.status(500).send('Error creating chat room');
+      }
+    } else {
+      res.status(201).send('Chat room created successfully');
+    }
+  });
+});
+
+// Get messages for a chat room
+app.get('/chat-rooms/:id/messages', function(req, res) {
+  var roomId = req.params.id;
+
+  var query = 'SELECT * FROM messages WHERE chat_room_id = ?';
+  db.query(query, [roomId], function(err, results) {
+    if (err) {
+      res.status(500).send('Error fetching messages');
+    } else {
+      res.status(200).json(results);
+    }
+  });
+});
+
 /* Start server */
 server.listen(app.get('port'), function (){
   console.log('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
 });
 
 module.exports = app;
+
+
+

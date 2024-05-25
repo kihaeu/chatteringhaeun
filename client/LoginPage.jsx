@@ -32,7 +32,7 @@ var LoginPage = React.createClass({
 		})
 		.then(data => {
 			alert(data);
-			this.props.onLogin();
+			this.props.onLogin(this.state.username);
 		})
 		.catch(error => {
 			alert('Error logging in: ' + error.message);
