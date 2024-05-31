@@ -1,4 +1,3 @@
-// app.jsx
 'use strict';
 
 var React = require('react');
@@ -54,9 +53,11 @@ var App = React.createClass({
 		}
 
 		return (
-			<div>
+			<div className="app-container">
 				{this.state.page !== 'login' && this.state.page !== 'signup' && <Sidebar onNavigate={this.handleNavigate} />}
-				{content}
+				<div className="main-content">
+					{content}
+				</div>
 			</div>
 		);
 	}

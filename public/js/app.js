@@ -226,130 +226,124 @@ var ChatApp = React.createClass({
 module.exports = ChatApp;
 
 },{"react":163}],2:[function(require,module,exports){
-// ChatSearch.jsx
 'use strict';
 
 var React = require('react');
 
 var ChatSearch = React.createClass({
-	displayName: 'ChatSearch',
+   displayName: 'ChatSearch',
 
-	getInitialState: function getInitialState() {
-		return { roomName: '', rooms: [] };
-	},
+   getInitialState: function getInitialState() {
+      return { roomName: '', rooms: [] };
+   },
 
-	componentDidMount: function componentDidMount() {
-		this.fetchChatRooms();
-	},
+   componentDidMount: function componentDidMount() {
+      this.fetchChatRooms();
+   },
 
-	fetchChatRooms: function fetchChatRooms() {
-		var _this = this;
+   fetchChatRooms: function fetchChatRooms() {
+      var _this = this;
 
-		fetch('/chat-rooms').then(function (response) {
-			return response.json();
-		}).then(function (data) {
-			_this.setState({ rooms: data });
-		})['catch'](function (error) {
-			console.error('Error fetching chat rooms:', error);
-		});
-	},
+      fetch('/chat-rooms').then(function (response) {
+         return response.json();
+      }).then(function (data) {
+         _this.setState({ rooms: data });
+      })['catch'](function (error) {
+         console.error('Error fetching chat rooms:', error);
+      });
+   },
 
-	handleChange: function handleChange(e) {
-		this.setState({ roomName: e.target.value });
-	},
+   handleChange: function handleChange(e) {
+      this.setState({ roomName: e.target.value });
+   },
 
-	handleSubmit: function handleSubmit(e) {
-		var _this2 = this;
+   handleSubmit: function handleSubmit(e) {
+      var _this2 = this;
 
-		e.preventDefault();
-		var existingRoom = this.state.rooms.find(function (room) {
-			return room.name === _this2.state.roomName;
-		});
-		if (existingRoom) {
-			if (window.confirm('채팅방이 있습니다. 참여하시겠습니까?')) {
-				this.props.onJoinRoom(existingRoom.id);
-			}
-		} else {
-			if (window.confirm('채팅방이 없습니다. 생성하시겠습니까?')) {
-				fetch('/chat-rooms', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({ name: this.state.roomName })
-				}).then(function (response) {
-					if (!response.ok) {
-						throw new Error('Error creating chat room');
-					}
-					return response.text();
-				}).then(function (data) {
-					alert(data);
-					_this2.fetchChatRooms();
-				})['catch'](function (error) {
-					alert('Error creating chat room: ' + error.message);
-				});
-			}
-		}
-	},
+      e.preventDefault();
+      var existingRoom = this.state.rooms.find(function (room) {
+         return room.name === _this2.state.roomName;
+      });
+      if (existingRoom) {
+         if (window.confirm('채팅방이 있습니다. 참여하시겠습니까?')) {
+            this.props.onJoinRoom(existingRoom.id);
+         }
+      } else {
+         if (window.confirm('채팅방이 없습니다. 생성하시겠습니까?')) {
+            fetch('/chat-rooms', {
+               method: 'POST',
+               headers: {
+                  'Content-Type': 'application/json'
+               },
+               body: JSON.stringify({ name: this.state.roomName })
+            }).then(function (response) {
+               if (!response.ok) {
+                  throw new Error('Error creating chat room');
+               }
+               return response.text();
+            }).then(function (data) {
+               alert(data);
+               _this2.fetchChatRooms();
+            })['catch'](function (error) {
+               alert('Error creating chat room: ' + error.message);
+            });
+         }
+      }
+   },
 
-	render: function render() {
-		var _this3 = this;
+   render: function render() {
+      var _this3 = this;
 
-		return React.createElement(
-			'div',
-			{ className: 'chat-search' },
-			React.createElement(
-				'h2',
-				null,
-				'채팅방 검색'
-			),
-			React.createElement(
-				'form',
-				{ onSubmit: this.handleSubmit },
-				React.createElement('input', {
-					type: 'text',
-					placeholder: '채팅방 이름 입력',
-					value: this.state.roomName,
-					onChange: this.handleChange
-				}),
-				React.createElement(
-					'button',
-					{ type: 'submit' },
-					'검색'
-				)
-			),
-			React.createElement(
-				'h3',
-				null,
-				'채팅방 목록'
-			),
-			React.createElement(
-				'ul',
-				null,
-				this.state.rooms.map(function (room) {
-					return React.createElement(
-						'li',
-						{ key: room.id },
-						room.name,
-						' ',
-						React.createElement(
-							'button',
-							{ onClick: function () {
-									return _this3.props.onJoinRoom(room.id);
-								} },
-							'참여'
-						)
-					);
-				})
-			)
-		);
-	}
+      return React.createElement(
+         'div',
+         { className: 'chat-search-container' },
+         React.createElement(
+            'form',
+            { onSubmit: this.handleSubmit, className: 'chat-search-form' },
+            React.createElement('input', {
+               type: 'text',
+               placeholder: '찾을 방',
+               value: this.state.roomName,
+               onChange: this.handleChange,
+               className: 'chat-search-input'
+            }),
+            React.createElement(
+               'button',
+               { type: 'submit', className: 'chat-search-button' },
+               '검색'
+            )
+         ),
+         React.createElement(
+            'h3',
+            null,
+            '채팅방 목록'
+         ),
+         React.createElement(
+            'ul',
+            { className: 'chat-room-list' },
+            this.state.rooms.map(function (room) {
+               return React.createElement(
+                  'li',
+                  { key: room.id, className: 'chat-room-item' },
+                  room.name,
+                  ' ',
+                  React.createElement(
+                     'button',
+                     { onClick: function () {
+                           return _this3.props.onJoinRoom(room.id);
+                        }, className: 'join-room-button' },
+                     '참여'
+                  )
+               );
+            })
+         )
+      );
+   }
 });
 
 module.exports = ChatSearch;
 
 },{"react":163}],3:[function(require,module,exports){
-// LoginPage.jsx
 'use strict';
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -357,87 +351,100 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 var React = require('react');
 
 var LoginPage = React.createClass({
-	displayName: 'LoginPage',
+   displayName: 'LoginPage',
 
-	getInitialState: function getInitialState() {
-		return { username: '', password: '' };
-	},
+   getInitialState: function getInitialState() {
+      return { username: '', password: '' };
+   },
 
-	handleChange: function handleChange(e) {
-		this.setState(_defineProperty({}, e.target.name, e.target.value));
-	},
+   handleChange: function handleChange(e) {
+      this.setState(_defineProperty({}, e.target.name, e.target.value));
+   },
 
-	handleSubmit: function handleSubmit(e) {
-		var _this = this;
+   handleSubmit: function handleSubmit(e) {
+      var _this = this;
 
-		e.preventDefault();
-		fetch('/login', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				username: this.state.username,
-				password: this.state.password
-			})
-		}).then(function (response) {
-			if (!response.ok) {
-				return response.text().then(function (text) {
-					throw new Error(text);
-				});
-			}
-			return response.text();
-		}).then(function (data) {
-			alert(data);
-			_this.props.onLogin(_this.state.username);
-		})['catch'](function (error) {
-			alert('Error logging in: ' + error.message);
-		});
-	},
+      e.preventDefault();
+      fetch('/login', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json'
+         },
+         body: JSON.stringify({
+            username: this.state.username,
+            password: this.state.password
+         })
+      }).then(function (response) {
+         if (!response.ok) {
+            return response.text().then(function (text) {
+               throw new Error(text);
+            });
+         }
+         return response.text();
+      }).then(function (data) {
+         alert(data);
+         _this.props.onLogin(_this.state.username);
+      })['catch'](function (error) {
+         alert('Error logging in: ' + error.message);
+      });
+   },
 
-	handleSignUpClick: function handleSignUpClick() {
-		this.props.onSignUp();
-	},
+   handleSignUpClick: function handleSignUpClick() {
+      this.props.onSignUp();
+   },
 
-	render: function render() {
-		return React.createElement(
-			'div',
-			{ className: 'login-page' },
-			React.createElement(
-				'h2',
-				null,
-				'로그인'
-			),
-			React.createElement(
-				'form',
-				{ onSubmit: this.handleSubmit },
-				React.createElement('input', {
-					type: 'text',
-					name: 'username',
-					placeholder: '아이디 입력',
-					value: this.state.username,
-					onChange: this.handleChange
-				}),
-				React.createElement('input', {
-					type: 'password',
-					name: 'password',
-					placeholder: '비밀번호 입력',
-					value: this.state.password,
-					onChange: this.handleChange
-				}),
-				React.createElement(
-					'button',
-					{ type: 'submit' },
-					'로그인'
-				)
-			),
-			React.createElement(
-				'button',
-				{ onClick: this.handleSignUpClick },
-				'회원가입'
-			)
-		);
-	}
+   render: function render() {
+      return React.createElement(
+         'div',
+         { className: 'login-container' },
+         React.createElement(
+            'div',
+            { className: 'login-box' },
+            React.createElement(
+               'div',
+               { className: 'login-header' },
+               React.createElement('img', { src: 'images/twolion.png', alt: 'Logo', className: 'logo-image' }),
+               React.createElement(
+                  'h2',
+                  null,
+                  '회원가입'
+               )
+            ),
+            React.createElement(
+               'form',
+               { onSubmit: this.handleSubmit },
+               React.createElement('input', {
+                  type: 'text',
+                  name: 'username',
+                  placeholder: '아이디',
+                  value: this.state.username,
+                  onChange: this.handleChange
+               }),
+               React.createElement('input', {
+                  type: 'password',
+                  name: 'password',
+                  placeholder: '비밀번호',
+                  value: this.state.password,
+                  onChange: this.handleChange
+               }),
+               React.createElement(
+                  'div',
+                  { className: 'button-group' },
+                  React.createElement(
+                     'button',
+                     { type: 'submit' },
+                     '로그인'
+                  ),
+                  React.createElement(
+                     'button',
+                     { type: 'button', onClick: this.handleSignUpClick },
+                     '회원가입'
+                  )
+               )
+            )
+         )
+      );
+   }
 });
 
 module.exports = LoginPage;
@@ -519,36 +526,38 @@ var MyPage = React.createClass({
 module.exports = MyPage;
 
 },{"react":163}],5:[function(require,module,exports){
-// Sidebar.jsx
 'use strict';
 
 var React = require('react');
 
 var Sidebar = React.createClass({
-	displayName: 'Sidebar',
+   displayName: 'Sidebar',
 
-	render: function render() {
-		var _this = this;
+   render: function render() {
+      var _this = this;
 
-		return React.createElement(
-			'div',
-			{ className: 'sidebar' },
-			React.createElement(
-				'button',
-				{ onClick: function () {
-						return _this.props.onNavigate('mypage');
-					} },
-				'마이페이지'
-			),
-			React.createElement(
-				'button',
-				{ onClick: function () {
-						return _this.props.onNavigate('chatsearch');
-					} },
-				'채팅'
-			)
-		);
-	}
+      return React.createElement(
+         'div',
+         { className: 'sidebar' },
+         React.createElement('img', { src: 'images/twolion.png', alt: 'Logo', className: 'sidebar-logo' }),
+         React.createElement(
+            'button',
+            { onClick: function () {
+                  return _this.props.onNavigate('mypage');
+               }, className: 'sidebar-button' },
+            React.createElement('img', { src: 'images/usericon.png', alt: 'Logo', className: 'sidebar-logo' }),
+            React.createElement('i', { className: 'fas fa-user' })
+         ),
+         React.createElement(
+            'button',
+            { onClick: function () {
+                  return _this.props.onNavigate('chatsearch');
+               }, className: 'sidebar-button' },
+            React.createElement('img', { src: 'images/message.png', alt: 'Logo', className: 'sidebar-logo' }),
+            React.createElement('i', { className: 'fas fa-comments' })
+         )
+      );
+   }
 });
 
 module.exports = Sidebar;
@@ -650,7 +659,6 @@ var SignUpPage = React.createClass({
 module.exports = SignUpPage;
 
 },{"react":163}],7:[function(require,module,exports){
-// app.jsx
 'use strict';
 
 var React = require('react');
@@ -709,9 +717,13 @@ var App = React.createClass({
 
 		return React.createElement(
 			'div',
-			null,
+			{ className: 'app-container' },
 			this.state.page !== 'login' && this.state.page !== 'signup' && React.createElement(Sidebar, { onNavigate: this.handleNavigate }),
-			content
+			React.createElement(
+				'div',
+				{ className: 'main-content' },
+				content
+			)
 		);
 	}
 });
