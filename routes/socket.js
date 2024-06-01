@@ -6,8 +6,9 @@ var mysql = require('mysql');
 var db = mysql.createConnection({
   host: 'localhost',
   user: 'chatuser',
-  password: 'chatpw',
-  database: 'chatdb'
+  password: 'chatpassword',
+  database: 'chatapp',
+  port : 3307
 });
 
 db.connect(function(err) {

@@ -25,21 +25,38 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('port', 3000);
 
 // MySQL connection
-var db = mysql.createConnection({
+var db_config = {
   host: 'localhost',
   user: 'chatuser',
-  password: 'chatpw',
-  database: 'chatdb'
-});
+  password: 'chatpassword',
+  database: 'chatapp',
+  port : 3307
+};
 
-db.connect(function(err) {
-  if (err) {
-    console.error('error connecting: ' + err.stack);
-    return;
-  }
-  console.log('connected to MySQL as id ' + db.threadId);
-});
+var db;
 
+function handleDisconnect() {
+  db = mysql.createConnection(db_config); // 새로운 연결 생성
+
+  db.connect((err) => {
+    if (err) {
+      console.log('Error when connecting to db:', err);
+      setTimeout(handleDisconnect, 2000); // 2초 후에 다시 시도
+    } else {
+      console.log('Connected to MySQL Database.');
+    }
+  });
+
+  db.on('error', (err) => {
+    console.log('db error', err);
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') { // 연결이 끊어졌을 경우
+      handleDisconnect(); // 재연결
+    } else {
+      throw err;
+    }
+  });
+}
+handleDisconnect();
 /* Development configuration */
 if (process.env.NODE_ENV === 'development') {
 	app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
