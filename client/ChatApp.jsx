@@ -107,14 +107,22 @@ var ChatApp = React.createClass({
    },
 
    componentDidMount() {
-      socket = io.connect('', { query: `username=${this.props.username}` });
+      // socket = io.connect('', { query: `username=${this.props.username}` });
+      socket = io.connect();
       this.fetchMessages();
       socket.on('init', this._initialize);
       socket.on('send:message', this._messageRecieve);
       socket.on('user:join', this._userJoined);
       socket.on('user:left', this._userLeft);
       socket.on('change:name', this._userChangedName);
+      // 소켓을 방 별로 분리 , 소켓 내부에서 roomId으로 구분
+		socket.emit('join:room', { roomId: this.props.roomId, userName: this.props.username });  // 추가
    },
+
+	// 추가 사용자가 방을 나갔을 때 
+	componentWillUnmount() {
+		socket.emit('leave:room', { roomId: this.props.roomId, userName: this.props.username });
+	},
 
    fetchMessages() {
       fetch(`/chat-rooms/${this.state.roomId}/messages`)
@@ -159,6 +167,7 @@ var ChatApp = React.createClass({
       this.setState({messages});
       socket.emit('send:message', message);
    },
+/* 안쓸듯...?
 
    handleChangeName(newName) {
       var oldName = this.state.user;
@@ -172,7 +181,7 @@ var ChatApp = React.createClass({
          this.setState({users, user: newName});
       });
    },
-
+*/
    render() {
       return (
          <div className='chat-app'>

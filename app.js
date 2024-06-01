@@ -144,7 +144,6 @@ app.get('/chat-rooms/:id/messages', function(req, res) {
     if (err) {
       res.status(500).send('Error fetching messages');
     } else {
-      console.log(results)
       res.status(200).json(results);
     }
   });

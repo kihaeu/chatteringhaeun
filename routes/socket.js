@@ -1,7 +1,8 @@
 // routes/socket.js
 var mysql = require('mysql');
 
-// MySQL connection
+
+// MySQL 연결
 var db = mysql.createConnection({
   host: 'localhost',
   user: 'chatuser',
@@ -16,7 +17,7 @@ db.connect(function(err) {
   }
   console.log('connected to MySQL as id ' + db.threadId);
 });
-
+/* 기존 코드
 var userNames = (function () {
   var names = {};
 
@@ -63,31 +64,70 @@ var userNames = (function () {
   };
 }());
 
+*/
+
+//username관련
+var userNames = {};
+
+var getUsersInRoom = function (room) {
+  if (!userNames[room]) {
+    return [];
+  }
+  return Object.keys(userNames[room]);
+};
+
+var freeName = function (room, name) {
+  if (userNames[room] && userNames[room][name]) {
+    delete userNames[room][name];
+    if (Object.keys(userNames[room]).length === 0) {
+      delete userNames[room];
+    }
+  }
+};
+
+
+
 module.exports = function (socket) {
-  var name = socket.handshake.query.username || userNames.getGuestName();
-  userNames.claim(name);
+  var name = null;
+  var currentRoom = null;
+  socket.on('join:room', function ({ userName, roomId }) {
+    name = userName;
+    currentRoom = roomId;
 
-  // send the new user their name and a list of users
+    console.log(currentRoom);
+
+
+    if (!userNames[currentRoom]) {
+      userNames[currentRoom] = {};
+    }
+    userNames[currentRoom][name] = true;
+
+    socket.join(currentRoom);
+  //새로운 사용자에게 자신의 이름과 사용자 목록 전송
+
   socket.emit('init', {
-    name: name,
-    users: userNames.get()
+      name: name,
+      users: getUsersInRoom(currentRoom),
+    });
+
+  //다른 클라이언트에게 새로운 사용자가 참여했음을 알림
+    
+    socket.broadcast.to(currentRoom).emit('user:join', {
+      name: name,
+    });
   });
 
-  // notify other clients that a new user has joined
-  socket.broadcast.emit('user:join', {
-    name: name
-  });
 
-  // broadcast a user's message to other users
+  //사용자의 메시지를 다른 사용자에게 브로드캐스트
   socket.on('send:message', function (data) {
     var message = {
-      username: name,
+      username : name,
       text: data.text,
       created_at: new Date().toISOString()
     };
-    socket.broadcast.emit('send:message', message);
+    socket.broadcast.to(currentRoom).emit('send:message', message);
 
-    // Insert message into the database
+    //메시지를 데이터베이스에 삽입
     var query = 'INSERT INTO messages (chat_room_id, username, text) VALUES (?, ?, ?)';
     db.query(query, [data.chat_room_id, name, data.text, message.created_at], function(err, results) {
       if (err) {
@@ -97,8 +137,9 @@ module.exports = function (socket) {
       }
     });
   });
+/* 사용 안함
 
-  // validate a user's name change, and broadcast it on success
+  //사용자의 이름 변경을 검증하고 성공 시 브로드캐스트
   socket.on('change:name', function (data, fn) {
     if (userNames.claim(data.name)) {
       var oldName = name;
@@ -116,12 +157,22 @@ module.exports = function (socket) {
       fn(false);
     }
   });
+*/
 
-  // clean up when a user leaves, and broadcast it to other users
+  //사용자가 나가면 정리하고 다른 사용자에게 알림(완전 끈 거)
   socket.on('disconnect', function () {
-    socket.broadcast.emit('user:left', {
-      name: name
+    socket.broadcast.to(currentRoom).emit('user:left', {
+      name: name,
     });
-    userNames.free(name);
+    freeName(currentRoom, name);
+  });
+
+  // 방을 나갔을 때 (chatapp componentWillUnmount 에서 사용)
+  socket.on('leave:room', function ({ userName, roomId }) {
+    freeName(roomId, userName);
+    socket.leave(roomId);
+    socket.broadcast.to(roomId).emit('user:left', {
+      name: userName,
+    });
   });
 };

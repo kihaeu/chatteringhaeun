@@ -112,10 +112,11 @@ var MessageForm = React.createClass({
    render: function render() {
       return React.createElement(
          'div',
-         { className: 'message_form' },
+         null,
          React.createElement(
             'form',
-            { onSubmit: this.handleSubmit },
+            { className: 'message_form',
+               onSubmit: this.handleSubmit },
             React.createElement('input', {
                placeholder: '메시지 입력',
                className: 'textinput',
@@ -140,13 +141,21 @@ var ChatApp = React.createClass({
    },
 
    componentDidMount: function componentDidMount() {
-      socket = io.connect('', { query: 'username=' + this.props.username });
+      // socket = io.connect('', { query: `username=${this.props.username}` });
+      socket = io.connect();
       this.fetchMessages();
       socket.on('init', this._initialize);
       socket.on('send:message', this._messageRecieve);
       socket.on('user:join', this._userJoined);
       socket.on('user:left', this._userLeft);
       socket.on('change:name', this._userChangedName);
+      // 소켓을 방 별로 분리 , 소켓 내부에서 roomId으로 구분
+      socket.emit('join:room', { roomId: this.props.roomId, userName: this.props.username }); // 추가
+   },
+
+   // 추가 사용자가 방을 나갔을 때
+   componentWillUnmount: function componentWillUnmount() {
+      socket.emit('leave:room', { roomId: this.props.roomId, userName: this.props.username });
    },
 
    fetchMessages: function fetchMessages() {
@@ -199,23 +208,21 @@ var ChatApp = React.createClass({
       this.setState({ messages: messages });
       socket.emit('send:message', message);
    },
-
-   handleChangeName: function handleChangeName(newName) {
-      var _this3 = this;
-
-      var oldName = this.state.user;
-      socket.emit('change:name', { name: newName }, function (result) {
-         if (!result) {
-            return alert('There was an error changing your name');
-         }
-         var users = _this3.state.users;
-
-         var index = users.indexOf(oldName);
-         users.splice(index, 1, newName);
-         _this3.setState({ users: users, user: newName });
-      });
-   },
-
+   /* 안쓸듯...?
+   
+      handleChangeName(newName) {
+         var oldName = this.state.user;
+         socket.emit('change:name', { name : newName}, (result) => {
+            if(!result) {
+               return alert('There was an error changing your name');
+            }
+            var {users} = this.state;
+            var index = users.indexOf(oldName);
+            users.splice(index, 1, newName);
+            this.setState({users, user: newName});
+         });
+      },
+   */
    render: function render() {
       return React.createElement(
          'div',
