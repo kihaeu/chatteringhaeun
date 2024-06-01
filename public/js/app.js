@@ -35,19 +35,25 @@ var Message = React.createClass({
    displayName: 'Message',
 
    render: function render() {
+      var isOwnMessage = this.props.username === this.props.currentUser;
+      var messageClass = isOwnMessage ? 'message own' : 'message';
       return React.createElement(
          'div',
-         { className: 'message' },
+         { className: messageClass },
          React.createElement(
-            'strong',
-            null,
-            this.props.username,
-            ' :'
-         ),
-         React.createElement(
-            'span',
-            null,
-            this.props.text
+            'div',
+            { className: 'message-content' },
+            React.createElement(
+               'strong',
+               null,
+               this.props.username,
+               ' :'
+            ),
+            React.createElement(
+               'span',
+               null,
+               this.props.text
+            )
          ),
          React.createElement(
             'div',
@@ -62,20 +68,18 @@ var MessageList = React.createClass({
    displayName: 'MessageList',
 
    render: function render() {
+      var _this = this;
+
       return React.createElement(
          'div',
          { className: 'messages' },
-         React.createElement(
-            'h2',
-            null,
-            ' 채팅방 '
-         ),
          this.props.messages.map(function (message, i) {
             return React.createElement(Message, {
                key: i,
                username: message.username,
                text: message.text,
-               timestamp: message.created_at
+               timestamp: message.created_at,
+               currentUser: _this.props.currentUser
             });
          })
       );
@@ -92,10 +96,10 @@ var MessageForm = React.createClass({
    handleSubmit: function handleSubmit(e) {
       e.preventDefault();
       var message = {
-         username: this.props.user, // 'user' 대신 'username' 사용
+         username: this.props.user,
          text: this.state.text,
          chat_room_id: this.props.roomId,
-         created_at: new Date().toISOString() // 메시지 전송 시간을 추가
+         created_at: new Date().toISOString()
       };
       this.props.onMessageSubmit(message);
       this.setState({ text: '' });
@@ -118,7 +122,11 @@ var MessageForm = React.createClass({
                onChange: this.changeHandler,
                value: this.state.text
             }),
-            React.createElement('h3', null)
+            React.createElement(
+               'button',
+               { type: 'submit' },
+               '전송'
+            )
          )
       );
    }
@@ -142,12 +150,12 @@ var ChatApp = React.createClass({
    },
 
    fetchMessages: function fetchMessages() {
-      var _this = this;
+      var _this2 = this;
 
       fetch('/chat-rooms/' + this.state.roomId + '/messages').then(function (response) {
          return response.json();
       }).then(function (data) {
-         _this.setState({ messages: data });
+         _this2.setState({ messages: data });
       })['catch'](function (error) {
          console.error('Error fetching messages:', error);
       });
@@ -193,30 +201,34 @@ var ChatApp = React.createClass({
    },
 
    handleChangeName: function handleChangeName(newName) {
-      var _this2 = this;
+      var _this3 = this;
 
       var oldName = this.state.user;
       socket.emit('change:name', { name: newName }, function (result) {
          if (!result) {
             return alert('There was an error changing your name');
          }
-         var users = _this2.state.users;
+         var users = _this3.state.users;
 
          var index = users.indexOf(oldName);
          users.splice(index, 1, newName);
-         _this2.setState({ users: users, user: newName });
+         _this3.setState({ users: users, user: newName });
       });
    },
 
    render: function render() {
       return React.createElement(
          'div',
-         null,
+         { className: 'chat-app' },
          React.createElement(
             'div',
-            { className: 'center' },
-            React.createElement(UsersList, { users: this.state.users }),
-            React.createElement(MessageList, { messages: this.state.messages }),
+            { className: 'chat-sidebar' },
+            React.createElement(UsersList, { users: this.state.users })
+         ),
+         React.createElement(
+            'div',
+            { className: 'chat-main' },
+            React.createElement(MessageList, { messages: this.state.messages, currentUser: this.state.user }),
             React.createElement(MessageForm, { onMessageSubmit: this.handleMessageSubmit, user: this.state.user, roomId: this.state.roomId })
          )
       );
@@ -545,7 +557,7 @@ var Sidebar = React.createClass({
             { onClick: function () {
                   return _this.props.onNavigate('mypage');
                }, className: 'sidebar-button' },
-            React.createElement('img', { src: 'images/usericon.png', alt: 'Logo', className: 'sidebar-logo' }),
+            React.createElement('img', { src: 'images/user.png', alt: 'Logo', className: 'sidebar-logo' }),
             React.createElement('i', { className: 'fas fa-user' })
          ),
          React.createElement(
@@ -553,7 +565,7 @@ var Sidebar = React.createClass({
             { onClick: function () {
                   return _this.props.onNavigate('chatsearch');
                }, className: 'sidebar-button' },
-            React.createElement('img', { src: 'images/message.png', alt: 'Logo', className: 'sidebar-logo' }),
+            React.createElement('img', { src: 'images/messages.png', alt: 'Logo', className: 'sidebar-logo' }),
             React.createElement('i', { className: 'fas fa-comments' })
          )
       );

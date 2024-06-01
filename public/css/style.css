@@ -206,4 +206,127 @@ body {
  .join-room-button:hover {
 	background-color: #2ea8d4;
  }
+
+ /* 스타일 파일 수정 */
+
+/* 기본 스타일 */
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f8f8f8;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	height: 100vh;
+  }
+  
+  .app-container {
+	display: flex;
+	width: 100%;
+	height: 100%;
+  }
+  
+  /* 채팅 앱 스타일 */
+  .chat-app {
+	display: flex;
+	flex: 1;
+	height: 100vh;
+  }
+  
+  .chat-sidebar {
+	width: 200px;
+	background-color: #2995ee;
+	color: white;
+	padding: 10px;
+	box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .chat-main {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	background-color: #ffffff;
+	padding: 20px;
+  }
+  
+  .users h3,
+  .messages h2 {
+	margin: 0 0 10px 0;
+  }
+  
+  .users ul {
+	list-style-type: none;
+	padding: 0;
+  }
+  
+  .users li {
+	margin: 5px 0;
+  }
+  
+  .message_form {
+	display: flex;
+	margin-top: auto;
+  }
+  
+  .message_form input {
+	flex: 1;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	margin-right: 10px;
+  }
+  
+  .message_form button {
+	padding: 10px 20px;
+	background-color: #2995ee;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+  }
+  
+  .message_form button:hover {
+	background-color: #2678c8;
+  }
+  
+  /* 메시지 스타일 */
+  .messages {
+	flex: 1;
+	overflow-y: auto;
+	margin-bottom: 20px;
+  }
+  
+  .message {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 10px;
+  }
+  
+  .message.own {
+	align-items: flex-end;
+  }
+  
+  .message-content {
+	display: flex;
+	align-items: center;
+	padding: 10px;
+	background-color: #f1f0f0;
+	border-radius: 10px;
+	max-width: 60%;
+  }
+  
+  .message.own .message-content {
+	background-color: #dcf8c6;
+  }
+  
+  .message strong {
+	margin-right: 10px;
+  }
+  
+  .timestamp {
+	font-size: 12px;
+	color: #999;
+	margin-top: 5px;
+  }
+  
  

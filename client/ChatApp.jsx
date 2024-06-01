@@ -26,10 +26,14 @@ var UsersList = React.createClass({
 
 var Message = React.createClass({
    render() {
+      const isOwnMessage = this.props.username === this.props.currentUser;
+      const messageClass = isOwnMessage ? 'message own' : 'message';
       return (
-         <div className="message">
-            <strong>{this.props.username} :</strong> 
-            <span>{this.props.text}</span>
+         <div className={messageClass}>
+            <div className="message-content">
+               <strong>{this.props.username} :</strong> 
+               <span>{this.props.text}</span>
+            </div>
             <div className="timestamp">{this.props.timestamp}</div>      
          </div>
       );
@@ -40,7 +44,6 @@ var MessageList = React.createClass({
    render() {
       return (
          <div className='messages'>
-            <h2> 채팅방 </h2>
             {
                this.props.messages.map((message, i) => {
                   return (
@@ -48,7 +51,8 @@ var MessageList = React.createClass({
                         key={i}
                         username={message.username}
                         text={message.text}
-                        timestamp={message.created_at} 
+                        timestamp={message.created_at}
+                        currentUser={this.props.currentUser}
                      />
                   );
                })
@@ -66,10 +70,10 @@ var MessageForm = React.createClass({
    handleSubmit(e) {
       e.preventDefault();
       var message = {
-         username: this.props.user, // 'user' 대신 'username' 사용
+         username: this.props.user,
          text: this.state.text,
          chat_room_id: this.props.roomId,
-         created_at: new Date().toISOString() // 메시지 전송 시간을 추가
+         created_at: new Date().toISOString()
       };
       this.props.onMessageSubmit(message);   
       this.setState({ text: '' });
@@ -89,7 +93,7 @@ var MessageForm = React.createClass({
                   onChange={this.changeHandler}
                   value={this.state.text}
                />
-               <h3></h3>
+               <button type="submit">전송</button>
             </form>
          </div>
       );
@@ -170,10 +174,12 @@ var ChatApp = React.createClass({
 
    render() {
       return (
-         <div>
-            <div className='center'>
+         <div className='chat-app'>
+            <div className='chat-sidebar'>
                <UsersList users={this.state.users} />
-               <MessageList messages={this.state.messages} />
+            </div>
+            <div className='chat-main'>
+               <MessageList messages={this.state.messages} currentUser={this.state.user} />
                <MessageForm onMessageSubmit={this.handleMessageSubmit} user={this.state.user} roomId={this.state.roomId} />
             </div>
          </div>
