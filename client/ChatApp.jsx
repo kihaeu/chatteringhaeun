@@ -85,8 +85,9 @@ var MessageForm = React.createClass({
 
    render() {
       return(
-         <div className='message_form'>
-            <form onSubmit={this.handleSubmit}>
+         <div >
+            <form className='message_form'
+            onSubmit={this.handleSubmit}>
                <input
                   placeholder='메시지 입력'
                   className='textinput'

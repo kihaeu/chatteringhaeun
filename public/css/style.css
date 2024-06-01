@@ -54,7 +54,7 @@
  
  button[type="submit"],
  button {
-	background-color: #FF9933;
+	background-color: #4653c9;
 	color: white;
 	padding: 10px;
 	border: none;
@@ -66,7 +66,7 @@
  
  button[type="submit"]:hover,
  button:hover {
-	background-color: #cc7a00;
+	background-color:#4653c9;
  }
  
  /* 기본 스타일 */
@@ -90,7 +90,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	background-color: #2ea8d4;
+	background: linear-gradient(90deg, #6084D7 0%, #C294EB 100%);
 	padding: 20px 0;
 	width: 100px; /* 사이드바 넓이 설정 */
 	height: 100vh;
@@ -122,7 +122,7 @@ body {
  }
  
  .sidebar-button:hover {
-	background-color: #FF9933;
+	background-color: #4653c9;
  }
  
  .sidebar-button-text {
@@ -145,7 +145,7 @@ body {
  }
  
  .chat-search-container h3 {
-	color: #2ea8d4;
+	color: #4853bd;
 	text-align: center;
  }
  
@@ -165,7 +165,7 @@ body {
  }
  
  .chat-search-button {
-	background-color: #FF9933;
+	background-color: #adb3ec;
 	color: white;
 	padding: 10px 20px;
 	border: none;
@@ -176,7 +176,7 @@ body {
  }
  
  .chat-search-button:hover {
-	background-color: #cc7a00;
+	background-color: #4653c9;
  }
  
  .chat-room-list {
@@ -193,7 +193,7 @@ body {
  }
  
  .join-room-button {
-	background-color: #2ea8d4;
+	background-color: #adb3ec;
 	color: white;
 	padding: 5px 10px;
 	border: none;
@@ -204,7 +204,7 @@ body {
  }
  
  .join-room-button:hover {
-	background-color: #2ea8d4;
+	background-color: #4653c9;
  }
 
  /* 스타일 파일 수정 */
@@ -233,8 +233,8 @@ body {
   }
   
   .chat-sidebar {
-	width: 200px;
-	background-color: #2995ee;
+	width: 100px;
+	background: linear-gradient(90deg, #8DA6EC 4.5%,  #7590D9 100%);
 	color: white;
 	padding: 10px;
 	box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
@@ -264,6 +264,7 @@ body {
   
   .message_form {
 	display: flex;
+	flex-direction: row;
 	margin-top: auto;
   }
   
@@ -274,10 +275,11 @@ body {
 	border-radius: 4px;
 	margin-right: 10px;
   }
-  
+  #adb3ec
   .message_form button {
 	padding: 10px 20px;
-	background-color: #2995ee;
+	width: 90px;
+	background-color:  #6a50ab ;
 	color: white;
 	border: none;
 	border-radius: 4px;
@@ -286,7 +288,7 @@ body {
   }
   
   .message_form button:hover {
-	background-color: #2678c8;
+	background-color: #8f31e1;
   }
   
   /* 메시지 스타일 */
@@ -316,7 +318,7 @@ body {
   }
   
   .message.own .message-content {
-	background-color: #dcf8c6;
+	background: linear-gradient(90deg, rgba(156, 175, 226, 0.7) 0%, rgba(181, 197, 242, 0.7) 55%, rgba(156, 175, 226, 0.7) 100%);
   }
   
   .message strong {
