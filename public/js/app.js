@@ -208,6 +208,7 @@ var ChatApp = React.createClass({
       this.setState({ messages: messages });
       socket.emit('send:message', message);
    },
+
    /* 안쓸듯...?
    
       handleChangeName(newName) {
@@ -710,7 +711,7 @@ var SignUpPage = React.createClass({
                   React.createElement(
                      'span',
                      { className: 'span-button', onClick: this.handleLoginClick },
-                     '| 로그인 |'
+                     '| 로그인 페이지로 돌아가기 |'
                   )
                )
             )

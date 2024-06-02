@@ -78,7 +78,7 @@ var SignUpPage = React.createClass({
                   />
                   <div className="button-group">
                      <button type="submit">회원가입</button>
-                     <span className="span-button" onClick={this.handleLoginClick}>| 로그인 |</span>
+                     <span className="span-button" onClick={this.handleLoginClick}>| 로그인 페이지로 돌아가기 |</span>
                   </div>
                </form>
             </div>

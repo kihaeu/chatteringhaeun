@@ -278,26 +278,29 @@ body {
 	display: flex;
 	flex-direction: row;
 	margin-top: auto;
-  }
-  
-  .message_form input {
-	flex: 1;
+	width: 100%;
+}
+
+.message_form input {
+	flex: 4 1 0%; /* flex-grow: 4, flex-shrink: 1, flex-basis: 0% */
 	padding: 10px;
 	border: 1px solid #ccc;
 	border-radius: 4px;
 	margin-right: 10px;
-  }
-  #adb3ec
-  .message_form button {
+	box-sizing: border-box;
+}
+
+.message_form button {
+	flex: 1 1 0%; /* flex-grow: 1, flex-shrink: 1, flex-basis: 0% */
 	padding: 10px 20px;
-	width: 90px;
-	background-color:  #6a50ab ;
+	background-color: #6a50ab;
 	color: white;
 	border: none;
 	border-radius: 4px;
 	cursor: pointer;
 	transition: background-color 0.3s ease;
-  }
+	box-sizing: border-box;
+}
   
   .message_form button:hover {
 	background-color: #8f31e1;
@@ -373,7 +376,7 @@ body {
 	border: 1px solid #ccc;
 	border-radius: 4px;
 	font-size: 16px;
-	width: 100%;
+	width: 94%;
 }
 
 .change-credentials-form button {
