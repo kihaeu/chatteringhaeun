@@ -1,6 +1,3 @@
-
-
-// app.js
 'use strict';
 
 /**
@@ -103,21 +100,22 @@ app.post('/login', function(req, res) {
   });
 });
 
-// User name change endpoint
-app.post('/change-username', function(req, res) {
+// User credentials change endpoint
+app.post('/change-credentials', function(req, res) {
   var oldUsername = req.body.oldUsername;
   var newUsername = req.body.newUsername;
-  console.log(oldUsername, newUsername);
-  var query = 'UPDATE users SET username = ? WHERE username = ?';
-  db.query(query, [newUsername, oldUsername], function(err, results) {
+  var newPassword = req.body.newPassword;
+
+  var query = 'UPDATE users SET username = ?, password = ? WHERE username = ?';
+  db.query(query, [newUsername, newPassword, oldUsername], function(err, results) {
     if (err) {
       if (err.code === 'ER_DUP_ENTRY') {
         res.status(409).send('Username already exists');
       } else {
-        res.status(500).send('Error changing username');
+        res.status(500).send('Error changing credentials');
       }
     } else {
-      res.status(200).send('Username changed successfully');
+      res.status(200).send('Credentials changed successfully');
     }
   });
 });
@@ -172,6 +170,3 @@ server.listen(app.get('port'), function (){
 });
 
 module.exports = app;
-
-
-

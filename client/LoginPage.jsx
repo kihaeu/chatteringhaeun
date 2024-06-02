@@ -4,7 +4,7 @@ var React = require('react');
 
 var LoginPage = React.createClass({
    getInitialState() {
-      return {username: '', password: ''};
+      return { username: '', password: '' };
    },
 
    handleChange(e) {
@@ -48,7 +48,7 @@ var LoginPage = React.createClass({
             <div className="login-box">
                <div className="login-header">
                   <img src="images/twolion.png" alt="Logo" className="logo-image" />
-                  <h2>회원가입</h2>
+                  <h2>로그인</h2>
                </div>
                <form onSubmit={this.handleSubmit}>
                   <input
@@ -67,7 +67,7 @@ var LoginPage = React.createClass({
                   />
                   <div className="button-group">
                      <button type="submit">로그인</button>
-                     <button type="button" onClick={this.handleSignUpClick}>회원가입</button>
+                     <span className="span-button" onClick={this.handleSignUpClick}>| 회원가입 |</span>
                   </div>
                </form>
             </div>

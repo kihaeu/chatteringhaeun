@@ -426,7 +426,7 @@ var LoginPage = React.createClass({
                React.createElement(
                   'h2',
                   null,
-                  '회원가입'
+                  '로그인'
                )
             ),
             React.createElement(
@@ -455,9 +455,9 @@ var LoginPage = React.createClass({
                      '로그인'
                   ),
                   React.createElement(
-                     'button',
-                     { type: 'button', onClick: this.handleSignUpClick },
-                     '회원가입'
+                     'span',
+                     { className: 'span-button', onClick: this.handleSignUpClick },
+                     '| 회원가입 |'
                   )
                )
             )
@@ -469,8 +469,9 @@ var LoginPage = React.createClass({
 module.exports = LoginPage;
 
 },{"react":163}],4:[function(require,module,exports){
-// MyPage.jsx
 'use strict';
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var React = require('react');
 
@@ -478,25 +479,26 @@ var MyPage = React.createClass({
 	displayName: 'MyPage',
 
 	getInitialState: function getInitialState() {
-		return { newName: '', currentName: this.props.currentName };
+		return { newName: '', currentName: this.props.currentName, newPassword: '' };
 	},
 
 	handleChange: function handleChange(e) {
-		this.setState({ newName: e.target.value });
+		this.setState(_defineProperty({}, e.target.name, e.target.value));
 	},
 
 	handleSubmit: function handleSubmit(e) {
 		var _this = this;
 
 		e.preventDefault();
-		fetch('/change-username', {
+		fetch('/change-credentials', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
 				oldUsername: this.state.currentName,
-				newUsername: this.state.newName
+				newUsername: this.state.newName,
+				newPassword: this.state.newPassword
 			})
 		}).then(function (response) {
 			if (!response.ok) {
@@ -507,11 +509,15 @@ var MyPage = React.createClass({
 			return response.text();
 		}).then(function (data) {
 			alert(data);
-			_this.setState({ currentName: _this.state.newName, newName: '' });
+			_this.setState({ currentName: _this.state.newName, newName: '', newPassword: '' });
 			_this.props.onChangeName(_this.state.newName);
 		})['catch'](function (error) {
-			alert('Error changing username: ' + error.message);
+			alert('Error changing credentials: ' + error.message);
 		});
+	},
+
+	handleLogout: function handleLogout() {
+		location.reload(); // 새로고침
 	},
 
 	render: function render() {
@@ -525,18 +531,31 @@ var MyPage = React.createClass({
 			),
 			React.createElement(
 				'form',
-				{ onSubmit: this.handleSubmit },
+				{ onSubmit: this.handleSubmit, className: 'change-credentials-form' },
 				React.createElement('input', {
 					type: 'text',
+					name: 'newName',
 					placeholder: '변경할 아이디 입력',
 					value: this.state.newName,
+					onChange: this.handleChange
+				}),
+				React.createElement('input', {
+					type: 'password',
+					name: 'newPassword',
+					placeholder: '변경할 비밀번호 입력',
+					value: this.state.newPassword,
 					onChange: this.handleChange
 				}),
 				React.createElement(
 					'button',
 					{ type: 'submit' },
-					'아이디 변경'
+					'변경 사항 저장'
 				)
+			),
+			React.createElement(
+				'button',
+				{ onClick: this.handleLogout, className: 'logout-button' },
+				'로그아웃'
 			)
 		);
 	}
@@ -561,17 +580,21 @@ var Sidebar = React.createClass({
          React.createElement('img', { src: 'images/twolion.png', alt: 'Logo', className: 'sidebar-logo' }),
          React.createElement(
             'button',
-            { onClick: function () {
+            {
+               onClick: function () {
                   return _this.props.onNavigate('mypage');
-               }, className: 'sidebar-button' },
+               },
+               className: 'sidebar-button ' + (this.props.currentPage === 'mypage' ? 'active' : '') },
             React.createElement('img', { src: 'images/user.png', alt: 'Logo', className: 'sidebar-logo' }),
             React.createElement('i', { className: 'fas fa-user' })
          ),
          React.createElement(
             'button',
-            { onClick: function () {
+            {
+               onClick: function () {
                   return _this.props.onNavigate('chatsearch');
-               }, className: 'sidebar-button' },
+               },
+               className: 'sidebar-button ' + (this.props.currentPage === 'chatsearch' ? 'active' : '') },
             React.createElement('img', { src: 'images/messages.png', alt: 'Logo', className: 'sidebar-logo' }),
             React.createElement('i', { className: 'fas fa-comments' })
          )
@@ -582,7 +605,6 @@ var Sidebar = React.createClass({
 module.exports = Sidebar;
 
 },{"react":163}],6:[function(require,module,exports){
-// SignUpPage.jsx
 'use strict';
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -590,89 +612,111 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 var React = require('react');
 
 var SignUpPage = React.createClass({
-	displayName: 'SignUpPage',
+   displayName: 'SignUpPage',
 
-	getInitialState: function getInitialState() {
-		return { username: '', password: '', confirmPassword: '' };
-	},
+   getInitialState: function getInitialState() {
+      return { username: '', password: '', confirmPassword: '' };
+   },
 
-	handleChange: function handleChange(e) {
-		this.setState(_defineProperty({}, e.target.name, e.target.value));
-	},
+   handleChange: function handleChange(e) {
+      this.setState(_defineProperty({}, e.target.name, e.target.value));
+   },
 
-	handleSubmit: function handleSubmit(e) {
-		var _this = this;
+   handleSubmit: function handleSubmit(e) {
+      var _this = this;
 
-		e.preventDefault();
-		if (this.state.password !== this.state.confirmPassword) {
-			return alert('Passwords do not match');
-		}
+      e.preventDefault();
+      if (this.state.password !== this.state.confirmPassword) {
+         alert('Passwords do not match!');
+         return;
+      }
+      fetch('/signup', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json'
+         },
+         body: JSON.stringify({
+            username: this.state.username,
+            password: this.state.password
+         })
+      }).then(function (response) {
+         if (!response.ok) {
+            return response.text().then(function (text) {
+               throw new Error(text);
+            });
+         }
+         return response.text();
+      }).then(function (data) {
+         alert(data);
+         _this.props.onSignUpSuccess(_this.state.username);
+      })['catch'](function (error) {
+         alert('Error signing up: ' + error.message);
+      });
+   },
 
-		fetch('/signup', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				username: this.state.username,
-				password: this.state.password
-			})
-		}).then(function (response) {
-			if (!response.ok) {
-				return response.text().then(function (text) {
-					throw new Error(text);
-				});
-			}
-			return response.text();
-		}).then(function (data) {
-			alert(data);
-			_this.props.onSignUpSuccess();
-		})['catch'](function (error) {
-			alert('Error signing up: ' + error.message);
-		});
-	},
+   handleLoginClick: function handleLoginClick() {
+      this.props.onLogin();
+   },
 
-	render: function render() {
-		return React.createElement(
-			'div',
-			{ className: 'sign-up-page' },
-			React.createElement(
-				'h2',
-				null,
-				'회원가입'
-			),
-			React.createElement(
-				'form',
-				{ onSubmit: this.handleSubmit },
-				React.createElement('input', {
-					type: 'text',
-					name: 'username',
-					placeholder: '아이디 입력',
-					value: this.state.username,
-					onChange: this.handleChange
-				}),
-				React.createElement('input', {
-					type: 'password',
-					name: 'password',
-					placeholder: '비밀번호 입력',
-					value: this.state.password,
-					onChange: this.handleChange
-				}),
-				React.createElement('input', {
-					type: 'password',
-					name: 'confirmPassword',
-					placeholder: '비밀번호 확인',
-					value: this.state.confirmPassword,
-					onChange: this.handleChange
-				}),
-				React.createElement(
-					'button',
-					{ type: 'submit' },
-					'회원가입'
-				)
-			)
-		);
-	}
+   render: function render() {
+      return React.createElement(
+         'div',
+         { className: 'login-container' },
+         React.createElement(
+            'div',
+            { className: 'login-box' },
+            React.createElement(
+               'div',
+               { className: 'login-header' },
+               React.createElement('img', { src: 'images/twolion.png', alt: 'Logo', className: 'logo-image' }),
+               React.createElement(
+                  'h2',
+                  null,
+                  '회원가입'
+               )
+            ),
+            React.createElement(
+               'form',
+               { onSubmit: this.handleSubmit },
+               React.createElement('input', {
+                  type: 'text',
+                  name: 'username',
+                  placeholder: '아이디',
+                  value: this.state.username,
+                  onChange: this.handleChange
+               }),
+               React.createElement('input', {
+                  type: 'password',
+                  name: 'password',
+                  placeholder: '비밀번호',
+                  value: this.state.password,
+                  onChange: this.handleChange
+               }),
+               React.createElement('input', {
+                  type: 'password',
+                  name: 'confirmPassword',
+                  placeholder: '비밀번호 확인',
+                  value: this.state.confirmPassword,
+                  onChange: this.handleChange
+               }),
+               React.createElement(
+                  'div',
+                  { className: 'button-group' },
+                  React.createElement(
+                     'button',
+                     { type: 'submit' },
+                     '회원가입'
+                  ),
+                  React.createElement(
+                     'span',
+                     { className: 'span-button', onClick: this.handleLoginClick },
+                     '| 로그인 |'
+                  )
+               )
+            )
+         )
+      );
+   }
 });
 
 module.exports = SignUpPage;
@@ -720,12 +764,16 @@ var App = React.createClass({
 	},
 
 	render: function render() {
+		var _this = this;
+
 		var content = undefined;
 
 		if (this.state.page === 'login') {
 			content = React.createElement(LoginPage, { onLogin: this.handleLogin, onSignUp: this.handleSignUp });
 		} else if (this.state.page === 'signup') {
-			content = React.createElement(SignUpPage, { onSignUpSuccess: this.handleSignUpSuccess });
+			content = React.createElement(SignUpPage, { onSignUpSuccess: this.handleSignUpSuccess, onLogin: function () {
+					return _this.setState({ page: 'login' });
+				} });
 		} else if (this.state.page === 'chat') {
 			content = React.createElement(ChatApp, { roomId: this.state.roomId, username: this.state.user });
 		} else if (this.state.page === 'mypage') {
@@ -737,7 +785,7 @@ var App = React.createClass({
 		return React.createElement(
 			'div',
 			{ className: 'app-container' },
-			this.state.page !== 'login' && this.state.page !== 'signup' && React.createElement(Sidebar, { onNavigate: this.handleNavigate }),
+			this.state.page !== 'login' && this.state.page !== 'signup' && React.createElement(Sidebar, { currentPage: this.state.page, onNavigate: this.handleNavigate }),
 			React.createElement(
 				'div',
 				{ className: 'main-content' },
@@ -746,7 +794,6 @@ var App = React.createClass({
 		);
 	}
 });
-
 React.render(React.createElement(App, null), document.getElementById('app'));
 
 },{"./ChatApp.jsx":1,"./ChatSearch.jsx":2,"./LoginPage.jsx":3,"./MyPage.jsx":4,"./Sidebar.jsx":5,"./SignUpPage.jsx":6,"react":163}],8:[function(require,module,exports){
